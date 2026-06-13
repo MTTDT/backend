@@ -4,7 +4,34 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Web framework
 axum = "0.8"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+tower = "0.4"
+tower-http = { version = "0.6.8", features = ["cors"] }
+
+# Stock data & ML
+yahoo_finance_api = "4"
+time = "0.3"
+ndarray = "0.16"
+linfa = "0.8.1"
+linfa-linear = "0.8.1"
+
+# Database
+sqlx = { version = "0.8", features = ["sqlite", "runtime-tokio", "migrate"] }
+
+# Auth
+argon2 = "0.5"
+rand_core = { version = "0.6", features = ["std"] }
+jsonwebtoken = "9"
+uuid = { version = "1", features = ["v4"] }
+
+# Utilities
+chrono = { version = "0.4", features = ["serde"] }
+thiserror = "1"
+anyhow = "1"
+dotenvy = "0.15.7"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
