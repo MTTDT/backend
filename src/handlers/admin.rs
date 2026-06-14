@@ -36,7 +36,6 @@ pub async fn delete_user(
     admin: AdminUser,
     Path(user_id): Path<String>,
 ) -> Result<Json<MessageResponse>, AppError> {
-    // Prevent self-deletion
     if user_id == admin.user_id {
         return Err(AppError::BadRequest("Cannot delete your own account".into()));
     }
@@ -71,7 +70,6 @@ pub async fn change_role(
     Path(user_id): Path<String>,
     Json(payload): Json<ChangeRoleRequest>,
 ) -> Result<Json<PublicUser>, AppError> {
-    // Prevent removing your own admin rights
     if user_id == admin.user_id && !payload.is_admin {
         return Err(AppError::BadRequest("Cannot remove your own admin rights".into()));
     }

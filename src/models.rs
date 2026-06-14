@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 
-/// Row returned from the `users` table.
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct UserRow {
     pub id: String,
@@ -12,7 +11,6 @@ pub struct UserRow {
     pub is_admin: bool
 }
 
-/// Safe public-facing user representation (no hash).
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PublicUser {
     pub id: String,
@@ -34,7 +32,6 @@ impl From<UserRow> for PublicUser {
     }
 }
 
-/// Row from the `user_tickers` table.
 #[derive(Debug, Clone, Serialize, Deserialize, sqlx::FromRow)]
 pub struct UserTickerRow {
     pub id: i64,
@@ -45,7 +42,6 @@ pub struct UserTickerRow {
     pub added_at: String,
 }
 
-// ── Auth request/response shapes ────────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
 pub struct RegisterRequest {

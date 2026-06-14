@@ -5,9 +5,6 @@ use argon2::{
 
 use crate::errors::AppError;
 
-/// Hash a plaintext password with Argon2id.
-///
-/// Returns the PHC string (includes salt + params) – safe to store in the DB.
 pub fn hash_password(password: &str) -> Result<String, AppError> {
     let salt = SaltString::generate(&mut OsRng);
     let argon2 = Argon2::default();
@@ -19,7 +16,6 @@ pub fn hash_password(password: &str) -> Result<String, AppError> {
     h
 }
 
-/// Verify a plaintext password against a stored PHC hash.
 pub fn verify_password(password: &str, hash: &str) -> Result<bool, AppError> {
     let parsed = PasswordHash::new(hash)
         .map_err(|e| AppError::Internal(format!("Invalid hash format: {e}")))?;

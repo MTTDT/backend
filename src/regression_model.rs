@@ -8,9 +8,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize)]
 pub struct PredictionResult {
     pub target_ticker: String,
-    pub training_data: Vec<f64>,  // What we trained on
-    pub actual_test: Vec<f64>,    // The "hidden" real prices
-    pub predicted_test: Vec<f64>, // What the model thought would happen
+    pub training_data: Vec<f64>,  
+    pub actual_test: Vec<f64>,    
+    pub predicted_test: Vec<f64>, 
     pub r_squared: f64,
     pub test_timestamps: Vec<i64>, 
     pub train_timestamps: Vec<i64>,

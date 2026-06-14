@@ -73,7 +73,6 @@ pub async fn register(
         .await?;
     }
 
-    // Re-key in-memory session from guest_id → user_id
     if let Some(guest_id) = &payload.guest_session_id {
         let mut sessions = state.sessions.lock().await;
         if let Some(register) = sessions.remove(guest_id.as_str()) {

@@ -106,16 +106,9 @@ impl FromRequestParts<AppState> for AuthUser {
     }
 }
 
-// ── SessionContext ────────────────────────────────────────────────────────────
-//
-// Single extractor resolving auth-or-guest in one place.
-// Axum 0.8 requires all extractor logic in one type — combining
-// Option<AuthUser> + HeaderMap inline in a handler signature breaks Handler bounds.
-
 #[derive(Debug, Clone)]
 pub struct SessionContext {
     pub session_id: String,
-    /// Some(user_id) if authenticated via JWT, None if guest
     pub user_id: Option<String>,
 }
 
@@ -126,8 +119,6 @@ impl FromRequestParts<AppState> for SessionContext {
         parts: &mut Parts,
         state: &AppState,
     ) -> impl Future<Output = Result<Self, Self::Rejection>> + Send {
-        // Extract both possible sources eagerly (before the async block)
-        // so we don't hold a borrow on `parts` across an await.
         let bearer = parts
             .headers
             .get(header::AUTHORIZATION)

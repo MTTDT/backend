@@ -48,9 +48,6 @@ impl AppState {
             default_tickers,
         }
     }
-
-    /// Get-or-create the register for a session key.
-    /// New sessions are seeded with the default tickers.
     pub async fn get_or_create_session(&self, session_id: &str) -> SessionRegister {
         let mut map = self.sessions.lock().await;
         if let Some(existing) = map.get(session_id) {
@@ -60,7 +57,6 @@ impl AppState {
         let register = default_register();
         map.insert(session_id.to_owned(), register.clone());
 
-        // Seed defaults in background - don't block the request
         let reg_clone = register.clone();
         let defaults = self.default_tickers.clone();
         tokio::spawn(async move {
@@ -75,7 +71,6 @@ impl AppState {
         register
     }
 
-    /// Remove a session from memory (e.g., on logout).
     pub async fn remove_session(&self, session_id: &str) {
         self.sessions.lock().await.remove(session_id);
     }
