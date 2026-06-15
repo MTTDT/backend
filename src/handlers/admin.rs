@@ -13,7 +13,6 @@ use crate::{
     state::AppState,
 };
 
-// ── GET /api/admin/users ──────────────────────────────────────────────────────
 
 pub async fn get_users(
     State(state): State<AppState>,
@@ -29,7 +28,6 @@ pub async fn get_users(
     Ok(Json(rows.into_iter().map(PublicUser::from).collect()))
 }
 
-// ── DELETE /api/admin/users/:id ───────────────────────────────────────────────
 
 pub async fn delete_user(
     State(state): State<AppState>,
@@ -49,7 +47,6 @@ pub async fn delete_user(
         return Err(AppError::NotFound(format!("User {} not found", user_id)));
     }
 
-    // Drop their in-memory session if active
     state.remove_session(&user_id).await;
 
     Ok(Json(MessageResponse {
@@ -57,7 +54,6 @@ pub async fn delete_user(
     }))
 }
 
-// ── PATCH /api/admin/users/:id/role ──────────────────────────────────────────
 
 #[derive(Debug, Deserialize)]
 pub struct ChangeRoleRequest {

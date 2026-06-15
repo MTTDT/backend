@@ -1,4 +1,4 @@
-use axum::{extract::State, http::StatusCode, response::IntoResponse, Json};
+use axum::{extract::{Path, State}, http::StatusCode, response::IntoResponse, Json};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -33,7 +33,11 @@ pub struct AddTickerRequest {
     pub range: String,
 }
 
-// ── /stocks/names ─────────────────────────────────────────────────────────────
+#[derive(Deserialize)]
+pub struct DeleteTickerRequest {
+    pub ticker: String,
+}
+
 
 pub async fn get_names(
     State(state): State<AppState>,
@@ -48,7 +52,6 @@ pub async fn get_names(
     Json(names)
 }
 
-// ── POST /stocks ──────────────────────────────────────────────────────────────
 
 pub async fn get_stocks(
     State(state): State<AppState>,
@@ -63,7 +66,6 @@ pub async fn get_stocks(
     Json(records)
 }
 
-// ── POST /stocks/add ──────────────────────────────────────────────────────────
 
 pub async fn add_stock(
     State(state): State<AppState>,
@@ -75,7 +77,6 @@ pub async fn add_stock(
 
     match reg.fetch(&payload.ticker, &payload.interval, &payload.range).await {
         Ok(_) => {
-            // Persist to DB only for authenticated users
             if let Some(user_id) = session.user_id {
                 let ticker = payload.ticker.clone();
                 let interval = payload.interval.clone();
@@ -104,7 +105,42 @@ pub async fn add_stock(
     }
 }
 
-// ── POST /predict ─────────────────────────────────────────────────────────────
+
+pub async fn delete_stock(
+    State(state): State<AppState>,
+    session: SessionContext,
+    Path(ticker_id): Path<String>,
+) -> impl IntoResponse {
+    println!("Received delete request for ticker: {}", ticker_id);
+    let register = state.get_or_create_session(&session.session_id).await;
+    let mut reg = register.lock().await;
+
+    if reg.remove(&ticker_id) {
+        if let Some(user_id) = session.user_id {
+            let ticker = ticker_id.clone();
+            let db = state.db.clone();
+            tokio::spawn(async move {
+                let _ = sqlx::query(
+                    "DELETE FROM user_tickers WHERE user_id = ? AND ticker = ?"
+                )
+                .bind(user_id)
+                .bind(ticker)
+                .execute(&db)
+                .await;
+            });
+        }
+        (StatusCode::OK, Json(MessageResponse {
+            message: format!("Successfully deleted {}", ticker_id),
+        })).into_response()
+    } else {
+        (StatusCode::NOT_FOUND, Json(MessageResponse {
+            message: format!("Ticker {} not found", ticker_id),
+        })).into_response()
+    }
+}
+
+
+
 
 pub async fn predict(
     State(state): State<AppState>,

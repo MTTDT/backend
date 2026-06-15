@@ -93,6 +93,7 @@ async fn main() {
         .route("/stocks/names", get(handlers::stocks::get_names))
         .route("/stocks", post(handlers::stocks::get_stocks))
         .route("/stocks/add", post(handlers::stocks::add_stock))
+        .route("/stocks/{id}", delete(handlers::stocks::delete_stock))
         .route("/predict", post(handlers::stocks::predict))
         .fallback(|method: Method| async move {
             if method == Method::OPTIONS {
