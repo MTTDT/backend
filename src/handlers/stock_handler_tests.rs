@@ -152,7 +152,7 @@ mod stock_handler_tests {
         
         let mut register_2: HashMap<String, StockRecord> = HashMap::new();
         let mut aapl_2 = test_stock("AAPL");
-        aapl_2.close_prices = vec![150.0, 151.0, 152.0]; // Different prices
+        aapl_2.close_prices = vec![150.0, 151.0, 152.0]; 
         register_2.insert("AAPL".to_string(), aapl_2);
 
         assert!(register_1.contains_key("AAPL"));
