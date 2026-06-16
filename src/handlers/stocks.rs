@@ -194,89 +194,10 @@ pub async fn predict(
     }
 }
 
-fn shift_stock_dates(stock: &mut StockRecord, days_offset: i32) {
+pub fn shift_stock_dates(stock: &mut StockRecord, days_offset: i32) {
     let offset_seconds = (days_offset as i64) * 86400; 
     for timestamp in &mut stock.timestamps {
         *timestamp -= offset_seconds;
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::collections::HashMap;
-
-    fn create_test_session() -> SessionContext {
-        SessionContext {
-            session_id: "test-123".to_string(),
-            user_id: Some("user-1".to_string()),
-        }
-    }
-
-    fn test_stock(ticker: &str) -> StockRecord {
-        StockRecord {
-            ticker: ticker.to_string(),
-            close_prices: vec![100.0, 101.0, 102.0],
-            open_prices: vec![99.0, 100.0, 101.0],
-            high_prices: vec![101.0, 102.0, 103.0],
-            low_prices: vec![98.0, 99.0, 100.0],
-            timestamps: vec![1000, 2000, 3000],
-        }
-    }
-
-    #[tokio::test]
-    async fn test_get_names_returns_empty_on_new_session() {
-        let mut register: HashMap<String, StockRecord> = HashMap::new();
-        let names: Vec<TickerName> = register.keys().map(|ticker| TickerName {
-            ticker: ticker.clone(),
-            full_name: "no name".to_string(),
-        }).collect();
-        assert_eq!(names.len(), 0);
-    }
-
-    #[tokio::test]
-    async fn test_add_stock_validates_response_format() {
-        let payload = AddTickerRequest {
-            ticker: "AAPL".to_string(),
-            interval: "1d".to_string(),
-            range: "1y".to_string(),
-        };
-        assert_eq!(payload.ticker, "AAPL");
-    }
-
-    #[tokio::test]
-    async fn test_get_stocks_filters_correctly() {
-        let mut register: HashMap<String, StockRecord> = HashMap::new();
-        register.insert("AAPL".to_string(), test_stock("AAPL"));
-        register.insert("GOOGL".to_string(), test_stock("GOOGL"));
-        let request = TickersRequest {
-            tickers: vec!["AAPL".to_string()],
-        };
-        let results: Vec<StockRecord> = request
-            .tickers
-            .iter()
-            .filter_map(|ticker| register.get(ticker).cloned())
-            .collect();
-        assert_eq!(results.len(), 1);
-        assert_eq!(results[0].ticker, "AAPL");
-    }
-
-    #[tokio::test]
-    async fn test_delete_removes_stock_from_register() {
-        let mut register: HashMap<String, StockRecord> = HashMap::new();
-        register.insert("AAPL".to_string(), test_stock("AAPL"));
-        register.remove("AAPL");
-        assert_eq!(register.len(), 0);
-    }
-
-    #[test]
-    fn test_shift_stock_dates_offset_calculation() {
-        let mut stock = test_stock("TEST");
-        let original = stock.timestamps.clone();
-        shift_stock_dates(&mut stock, 5);
-        let offset = 5 * 86400;
-        for (i, ts) in stock.timestamps.iter().enumerate() {
-            assert_eq!(*ts, original[i] - offset);
-        }
-    }
-}
